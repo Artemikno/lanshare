@@ -79,7 +79,7 @@ public class Lanshare implements AutoCloseable {
             System.out.println("Using UI");
             JFrame d = new JFrame();
             TextArea la = new TextArea();
-            d.add(new Label("Enter port and backlog with port:backlog or filename"));
+            d.add(new Label("Enter port and backlog with port:backlog or filename or blank to load default.dat"));
             d.add(la);
             Button b = new Button("Save port:backlog");
             b.addActionListener(new ActionListener() {
