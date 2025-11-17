@@ -26,6 +26,11 @@ jobs:
         cache: maven
     - name: Build with Maven
       run: mvn -B package --file pom.xml
+    - name: Upload JAR
+      uses: actions/upload-artifact@v3
+      with:
+        name: lanshare-jar
+        path: target/lanshare-1.0.jar
     - name: List target/
       run: ls -l target/
 
