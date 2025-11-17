@@ -174,7 +174,9 @@ public class Lanshare implements AutoCloseable {
                                   
                                   <script>
                                   async function loadFiles() {
-                                      const res = await fetch('/file/');
+                                      const params = new URLSearchParams(location.search);
+                                      const dir = params.get("dir");
+                                      const res = await fetch('/file/'+dir);
                                       const tree = await res.json();
                                       const ul = document.getElementById('fileTree');
                                       ul.innerHTML = '';
@@ -223,27 +225,12 @@ public class Lanshare implements AutoCloseable {
                 String path = exchange.getRequestURI().getPath().substring("/file".length());
                 if (path.isEmpty() || path.equals("/")) {
                     Path root = Path.of("public");
-                    List<List<String>> tree = new ArrayList<>();
-                    try (var paths = Files.walk(root)) {
-                        paths.forEach(p -> {
-                            if (!Files.isDirectory(p)) {
-                                tree.add(List.of(root.relativize(p).getParent() == null ? ""
-                                        : root.relativize(p).getParent().toString(),
-                                        p.getFileName().toString()));
-                            }
-                        });
-                    }
-                    StringBuilder json = new StringBuilder("[");
-                    for (int i = 0; i < tree.size(); i++) {
-                        List<String> e = tree.get(i);
-                        json.append("[\"").append(e.get(0).replace("\\", "/"))
-                                .append("\",\"").append(e.get(1)).append("\"]");
-                        if (i < tree.size() - 1) {
-                            json.append(",");
-                        }
-                    }
-                    json.append("]");
-                    byte[] data = json.toString().getBytes();
+                    var arr = Files.list(root)
+                        .map(p -> "[\"" + p.getFileName().toString().replace("\\", "/") +
+                        "\",\"" + Files.isDirectory(p) + "\"]")
+                        .toArray(String[]::new);
+                    String json = "[" + String.join(",", arr) + "]";
+                    byte[] data = json.getBytes();
                     exchange.getResponseHeaders().add("Content-Type", "application/json");
                     exchange.sendResponseHeaders(200, data.length);
                     try (OutputStream os = exchange.getResponseBody()) {
@@ -252,6 +239,20 @@ public class Lanshare implements AutoCloseable {
                     return;
                 }
                 Path file = Path.of("public", path.substring("/".length()));
+                if (Files.isDirectory(file)) {
+                    var arr = Files.list(dir)
+                        .map(p -> "[\"" + p.getFileName().toString().replace("\\", "/") +
+                        "\",\"" + Files.isDirectory(p) + "\"]")
+                        .toArray(String[]::new);
+                    String json = "[" + String.join(",", arr) + "]";
+                    byte[] data = json.getBytes();
+                    exchange.getResponseHeaders().add("Content-Type", "application/json");
+                    exchange.sendResponseHeaders(200, data.length);
+                    try (OutputStream os = exchange.getResponseBody()) {
+                        os.write(data);
+                    }
+                    return;
+                }
                 if (!Files.exists(file) || Files.isDirectory(file)) {
                     exchange.sendResponseHeaders(404, -1);
                     return;
