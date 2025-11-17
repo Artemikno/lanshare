@@ -259,7 +259,7 @@ public class Lanshare implements AutoCloseable {
                 switch (exchange.getRequestMethod()) {
                     case "GET" -> {
                         if (Files.isDirectory(file)) {
-                            var arr = Files.list(dir)
+                            var arr = Files.list(file)
                                .map(p -> "[\"" + p.getFileName().toString().replace("\\", "/") +
                                 "\",\"" + Files.isDirectory(p) + "\"]")
                                 .toArray(String[]::new);
