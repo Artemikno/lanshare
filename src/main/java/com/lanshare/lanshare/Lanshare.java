@@ -181,7 +181,7 @@ public class Lanshare implements AutoCloseable {
                                       const ul = document.getElementById('fileTree');
                                       ul.innerHTML = '';
                                   
-                                      tree.forEach(([dir, file]) => {
+                                      tree.forEach((file) => {
                                           const li = document.createElement('li');
                                           li.textContent = (dir ? dir + '/' : '') + file;
                                           li.onclick = () => downloadFile(dir, file);
@@ -239,40 +239,45 @@ public class Lanshare implements AutoCloseable {
                     return;
                 }
                 Path file = Path.of("public", path.substring("/".length()));
-                if (Files.isDirectory(file)) {
-                    var arr = Files.list(dir)
-                        .map(p -> "[\"" + p.getFileName().toString().replace("\\", "/") +
-                        "\",\"" + Files.isDirectory(p) + "\"]")
-                        .toArray(String[]::new);
-                    String json = "[" + String.join(",", arr) + "]";
-                    byte[] data = json.getBytes();
-                    exchange.getResponseHeaders().add("Content-Type", "application/json");
-                    exchange.sendResponseHeaders(200, data.length);
-                    try (OutputStream os = exchange.getResponseBody()) {
-                        os.write(data);
-                    }
-                    return;
-                }
-                if (!Files.exists(file) || Files.isDirectory(file)) {
+                
+                if (!Files.exists(file)) {
                     exchange.sendResponseHeaders(404, -1);
                     return;
                 }
                 switch (exchange.getRequestMethod()) {
                     case "GET" -> {
-                        exchange.getResponseHeaders().add("Content-Type", "application/octet-stream");
-                        try (OutputStream os = exchange.getResponseBody(); InputStream is = Files.newInputStream(Path.of("public", exchange.getRequestURI().getPath().substring("/file/".length())))) {
-                            exchange.sendResponseHeaders(200, 0);
-                            byte[] buf = new byte[8192];
-                            int n;
-                            while ((n = is.read(buf)) != -1) {
-                                os.write(buf, 0, n);
+                        if (Files.isDirectory(file)) {
+                            var arr = Files.list(dir)
+                               .map(p -> "[\"" + p.getFileName().toString().replace("\\", "/") +
+                                "\",\"" + Files.isDirectory(p) + "\"]")
+                                .toArray(String[]::new);
+                            String json = "[" + String.join(",", arr) + "]";
+                            byte[] data = json.getBytes();
+                            exchange.getResponseHeaders().add("Content-Type", "application/json");
+                            exchange.sendResponseHeaders(200, data.length);
+                            try (OutputStream os = exchange.getResponseBody()) {
+                                os.write(data);
                             }
-                        } catch (Exception ex) {
-                            exchange.sendResponseHeaders(409, -1);
+                        } else {
+                            exchange.getResponseHeaders().add("Content-Type", "application/octet-stream");
+                            try (OutputStream os = exchange.getResponseBody(); InputStream is = Files.newInputStream(Path.of("public", exchange.getRequestURI().getPath().substring("/file/".length())))) {
+                                exchange.sendResponseHeaders(200, 0);
+                                byte[] buf = new byte[8192];
+                                int n;
+                                while ((n = is.read(buf)) != -1) {
+                                    os.write(buf, 0, n);
+                                }
+                            } catch (Exception ex) {
+                                exchange.sendResponseHeaders(409, -1);
+                            }
                         }
                         break;
                     }
                     case "HEAD" -> {
+                        if (Files.isDirectory(file)) {
+                            exchange.sendResponseHeaders(204, -1);
+                            break;
+                        }
                         exchange.sendResponseHeaders(200, -1);
                         break;
                     }
