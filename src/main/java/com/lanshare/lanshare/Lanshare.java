@@ -182,14 +182,14 @@ public class Lanshare implements AutoCloseable {
                                       ul.innerHTML = '';
                                   
                                       for (const file of tree) {
-                                          const r = await fetch('/file/'+dir+file, { method: "HEAD" });
                                           const li = document.createElement('li');
-                                          li.textContent = dir + file;
-                                          if (r.status == 200) {
-                                              li.onclick = () => downloadFile(dir, file);
+                                          li.textContent = dir + file[0];
+                                          const isDir = file[1] === "true";
+                                          if (!isDir) {
+                                              li.onclick = () => downloadFile(dir, file[0]);
                                           }
-                                          if (r.status == 204) {
-                                              li.onclick = () => redir(file, dir);
+                                          if (isDir) {
+                                              li.onclick = () => redir(file[0], dir);
                                           }
                                           ul.appendChild(li);
                                       }
