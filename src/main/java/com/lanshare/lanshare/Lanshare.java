@@ -181,18 +181,18 @@ public class Lanshare implements AutoCloseable {
                                       const ul = document.getElementById('fileTree');
                                       ul.innerHTML = '';
                                   
-                                      tree.forEach((file) => {
+                                      for (const file of tree) {
                                           const r = await fetch('/file/'+dir+file, { method: "HEAD" });
                                           const li = document.createElement('li');
-                                          li.textContent = (dir ? dir + '/' : '') + file;
-                                          if (t.status == 200) {
+                                          li.textContent = dir + file;
+                                          if (r.status == 200) {
                                               li.onclick = () => downloadFile(dir, file);
                                           }
-                                          if (t.status == 204) {
+                                          if (r.status == 204) {
                                               li.onclick = () => redir(file, dir);
                                           }
                                           ul.appendChild(li);
-                                      });
+                                      }
                                   }
 
                                   function redir(newDir, oldDir) {
