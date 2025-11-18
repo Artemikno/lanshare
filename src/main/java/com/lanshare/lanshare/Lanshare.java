@@ -204,18 +204,7 @@ public class Lanshare implements AutoCloseable {
                                   function downloadFile(dir, file) {
                                       const path = encodeURIComponent((dir ? dir + '/' : '') + file);
                                       const url = '/file/' + path;
-                                      fetch(url)
-                                          .then(r => {
-                                              if (!r.ok) throw new Error('File not found');
-                                              return r.blob();
-                                          })
-                                          .then(blob => {
-                                              const a = document.createElement('a');
-                                              a.href = URL.createObjectURL(blob);
-                                              a.download = file;
-                                              a.click();
-                                          })
-                                          .catch(e => alert(e));
+                                      Object.assign(document.createElement("a"),{href:url,download:""}).click();
                                   }
                                   
                                   loadFiles();
