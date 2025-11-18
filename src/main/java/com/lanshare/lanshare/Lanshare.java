@@ -66,9 +66,6 @@ public class Lanshare implements AutoCloseable {
             System.out.println("Usage: ");
             System.out.println("-u <true|false> = load from config / no UI");
             System.out.println("-c <file> = config file");
-            System.out.println("");
-            System.out.println("UI mode is recommended");
-            System.out.println("because config files cannot be created any other way");
             return;
         }
         
@@ -180,7 +177,13 @@ public class Lanshare implements AutoCloseable {
                                       const tree = await res.json();
                                       const ul = document.getElementById('fileTree');
                                       ul.innerHTML = '';
-                                  
+
+                                      if (dir.includes("/")) {
+                                          const back = document.createElement('li');
+                                          li.textContent = '..';
+                                          li.onclick = () => bkcdir(dir);
+                                          ul.appendChild(back);
+                                      }
                                       for (const file of tree) {
                                           const li = document.createElement('li');
                                           li.textContent = dir + file[0];
@@ -198,6 +201,13 @@ public class Lanshare implements AutoCloseable {
                                   function redir(newDir, oldDir) {
                                       const u = new URL(location.href);
                                       u.searchParams.set("dir", oldDir+newDir+'/');
+                                      location.href = u.toString();
+                                  }
+
+                                  function bckdir(dir) {
+                                      const newDir = dir.replace(/[^/]+\/?$/, "");
+                                      const u = new URL(location.href);
+                                      u.searchParams.set("dir", newDir);
                                       location.href = u.toString();
                                   }
                     
