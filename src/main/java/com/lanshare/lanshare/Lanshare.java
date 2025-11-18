@@ -1,4 +1,4 @@
-/*
+-/*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  */
 
@@ -180,8 +180,8 @@ public class Lanshare implements AutoCloseable {
 
                                       if (dir.includes("/")) {
                                           const back = document.createElement('li');
-                                          li.textContent = '..';
-                                          li.onclick = () => bkcdir(dir);
+                                          back.textContent = '..';
+                                          back.onclick = () => bckdir(dir);
                                           ul.appendChild(back);
                                       }
                                       for (const file of tree) {
