@@ -205,7 +205,7 @@ public class Lanshare implements AutoCloseable {
                                   }
 
                                   function bckdir(dir) {
-                                      const newDir = dir.replace(/[^/]+\/?$/, "");
+                                      const newDir = dir.replace(/[^/]+\\/?$/, "");
                                       const u = new URL(location.href);
                                       u.searchParams.set("dir", newDir);
                                       location.href = u.toString();
