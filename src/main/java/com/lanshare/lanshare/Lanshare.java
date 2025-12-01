@@ -26,7 +26,6 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import javax.swing.JFrame;
-import org.apache.tika.Tika;
 
 /**
  *
@@ -36,7 +35,6 @@ public class Lanshare implements AutoCloseable {
     HttpServer server;
     private SerializableData data;
     private static Lanshare inst;
-    private static Tika tika;
     
     public static class SerializableData implements Serializable {
         public int port;
@@ -178,7 +176,7 @@ public class Lanshare implements AutoCloseable {
                                 os.write(data);
                             }
                         } else {
-                            exchange.getResponseHeaders().add("Content-Type", tika.detect(file));
+                            exchange.getResponseHeaders().add("Content-Type", URLConnection.getFileNameMap().getContentTypeFor(file.toString()));
                             try (OutputStream os = exchange.getResponseBody(); InputStream is = Files.newInputStream(Path.of("public", path))) {
                                 exchange.sendResponseHeaders(200, 0);
                                 byte[] buf = new byte[8192];
@@ -222,7 +220,6 @@ public class Lanshare implements AutoCloseable {
     private Lanshare() throws IOException {
         inst = this;
         server = HttpServer.create();
-        tika = new Tika();
     }
 
     @Override
