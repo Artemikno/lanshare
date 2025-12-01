@@ -5,6 +5,13 @@
     <artifactId>lanshare</artifactId>
     <version>1.0</version>
     <packaging>jar</packaging>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.tika</groupId>
+            <artifactId>tika-core</artifactId>
+            <version>3.2.3</version>
+        </dependency>
+    </dependencies>
     <build>
         <plugins>
             <plugin>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>fnaf button</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<style>
+		#myVideo {
+		display: none;
+	}
+	</style>
+    </head>
+    <body>
+	<a href="/explore.html">Back</a>
+        <link id="redbg" rel="stylesheet" type="text/css" href="/css_red.css">
+        <p>Press the button below!!!</p>
+        <p>|</p>
+        <p>|</p>
+        <p>V</p>
+        <audio id="soundEffect" onended="window.close();">
+            <source src="/turnoff.mp3" type="audio/mpeg">
+            Your browser does not support the audio.
+        </audio>
+	<video id="myVideo" width="320" height="240">
+		<source src="/movie.mp4" type="video/mp4">
+		Your browser does not support the video.
+	</video>
+        <button id="hiButton" onclick="
+  document.getElementById('hiButton').style.display = 'none'; 
+  document.bgColor = 'black'; 
+  document.querySelectorAll('link[rel=\'stylesheet\']').forEach(e => e.disabled = true); 
+  const audio = document.getElementById('soundEffect');
+  audio.play(); 
+  audio.onended = () => { 
+        document.getElementById('myVideo').style.display = 'block';
+        document.getElementById('myVideo').play();
+  }
+                ">
+            Turn off the lights
+        </button>
+    </body>
+</html>
