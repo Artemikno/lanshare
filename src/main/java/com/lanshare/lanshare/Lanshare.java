@@ -132,13 +132,10 @@ public class Lanshare implements AutoCloseable {
      */
     public void loadFile(String file) throws IOException, ClassNotFoundException {
         data = (SerializableData) new ObjectInputStream(new FileInputStream(file)).readObject();
-                System.out.println("---- 1 ----");
         server.bind(new InetSocketAddress(data.port), data.backlog);
-                System.out.println("---- 2 ----");
         init();
-                System.out.println("---- 3 ----");
         server.start();
-                System.out.println("---- 4 ----");
+        System.out.println("Server started!");
     }
     
     /**
@@ -178,14 +175,14 @@ public class Lanshare implements AutoCloseable {
                         } else {
                             exchange.getResponseHeaders().add("Content-Type", URLConnection.getFileNameMap().getContentTypeFor(file.toString()));
                             try (OutputStream os = exchange.getResponseBody(); InputStream is = Files.newInputStream(Path.of("public", path))) {
-                                exchange.sendResponseHeaders(200, 0);
+                                exchange.sendResponseHeaders(200, Files.size(Path.of("public", path)));
                                 byte[] buf = new byte[8192];
                                 int n;
                                 while ((n = is.read(buf)) != -1) {
                                     os.write(buf, 0, n);
                                 }
                             } catch (Exception ex) {
-                                exchange.sendResponseHeaders(409, -1);
+                                ex.printStackTrace();
                             }
                         }
                         break;
