@@ -174,8 +174,8 @@ public class Lanshare implements AutoCloseable {
                             }
                         } else {
                             exchange.getResponseHeaders().add("Content-Type", URLConnection.getFileNameMap().getContentTypeFor(file.toString()));
+                            exchange.sendResponseHeaders(200, Files.size(Path.of("public", path)));
                             try (OutputStream os = exchange.getResponseBody(); InputStream is = Files.newInputStream(Path.of("public", path))) {
-                                exchange.sendResponseHeaders(200, Files.size(Path.of("public", path)));
                                 byte[] buf = new byte[8192];
                                 int n;
                                 while ((n = is.read(buf)) != -1) {
