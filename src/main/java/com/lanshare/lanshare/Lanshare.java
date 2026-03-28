@@ -161,7 +161,7 @@ public class Lanshare implements AutoCloseable {
                 switch (exchange.getRequestMethod()) {
                     case "GET" -> {
                         if (Files.isDirectory(file)) {
-                            var arr = Files.list(file)
+                            /*var arr = Files.list(file)
                                .map(p -> "[\"" + p.getFileName().toString().replace("\\", "/") +
                                 "\",\"" + Files.isDirectory(p) + "\"]")
                                 .toArray(String[]::new);
@@ -171,9 +171,11 @@ public class Lanshare implements AutoCloseable {
                             exchange.sendResponseHeaders(200, data.length);
                             try (OutputStream os = exchange.getResponseBody()) {
                                 os.write(data);
-                            }
+                            }*/
+                            exchange.sendResponseHeaders(422, data.length);
                         } else {
-                            exchange.getResponseHeaders().add("Content-Type", URLConnection.getFileNameMap().getContentTypeFor(file.toString()));
+                            String type = URLConnection.getFileNameMap().getContentTypeFor(file.toString());
+                            exchange.getResponseHeaders().add("Content-Type", type==null?"application/octet-stream":type);
                             exchange.sendResponseHeaders(200, Files.size(Path.of("public", path)));
                             try (OutputStream os = exchange.getResponseBody(); InputStream is = Files.newInputStream(Path.of("public", path))) {
                                 byte[] buf = new byte[8192];
