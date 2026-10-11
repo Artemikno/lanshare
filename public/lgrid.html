@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Link Grid</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .link-grid {
+      display: grid;
+      grid-template-columns: repeat(3, auto); /* 3 links per row */
+      gap: 10px; /* Space between links */
+    }
+    .link-grid a {
+      text-decoration: none;
+      color: blue;
+      font-size: 16px;
+    }
+    .link-grid a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="link-grid">
+    <a href="/">link1</a>
+    <a href="/button.html">link2</a>
+    <a href="/hello.html">link3</a>
+    <a href="/mc.html">link4</a>
+    <a href="/hello.html">link5</a>
+    <a href="/button.html">link6</a>
+    <a href="/hello.html">link7</a>
+    <a href="/hello.html">link8</a>
+    <a href="/explore.html">link9</a>
+    <a href="/hello.html">link✔</a>
+    <a href="/hello.html">link0</a>
+    <a href="/space.html">link✘</a>
+  </div>
+</body>
+</html>

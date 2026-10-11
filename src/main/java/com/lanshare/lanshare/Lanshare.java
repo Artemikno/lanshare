@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- */
-
 package com.lanshare.lanshare;
 
 import com.sun.net.httpserver.HttpExchange;
@@ -24,9 +20,9 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
+import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import javax.swing.JFrame;
@@ -136,13 +132,10 @@ public class Lanshare implements AutoCloseable {
      */
     public void loadFile(String file) throws IOException, ClassNotFoundException {
         data = (SerializableData) new ObjectInputStream(new FileInputStream(file)).readObject();
-                System.out.println("---- 1 ----");
         server.bind(new InetSocketAddress(data.port), data.backlog);
-                System.out.println("---- 2 ----");
         init();
-                System.out.println("---- 3 ----");
         server.start();
-                System.out.println("---- 4 ----");
+        System.out.println("Server started!");
     }
     
     /**
@@ -152,104 +145,14 @@ public class Lanshare implements AutoCloseable {
         server.createContext("/", new HttpHandler() {
             @Override
             public void handle(HttpExchange exchange) throws IOException {
-                System.out.println("/");
-                String htmlData = """
-                                  <!DOCTYPE html>
-                                  <html lang="en">
-                                  <head>
-                                  <meta charset="UTF-8">
-                                  <title>File Browser</title>
-                                  <style>
-                                    body { font-family: sans-serif; }
-                                    ul { list-style-type: "\\1F4C1"; padding-left: 1em; }
-                                    li { margin: 0.2em 0; cursor: pointer; color: blue; }
-                                  </style>
-                                  </head>
-                                  <body>
-                                  <h1>File Browser</h1>
-                                  <ul id="fileTree"></ul>
-                                  
-                                  <script>
-                                  async function loadFiles() {
-                                      const params = new URLSearchParams(location.search);
-                                      const dir = params.get("dir");
-                                      const res = await fetch('/file/'+dir);
-                                      const tree = await res.json();
-                                      const ul = document.getElementById('fileTree');
-                                      ul.innerHTML = '';
-
-                                      if (dir.includes("/")) {
-                                          const back = document.createElement('li');
-                                          back.textContent = '..';
-                                          back.onclick = () => bckdir(dir);
-                                          ul.appendChild(back);
-                                      }
-                                      for (const file of tree) {
-                                          const li = document.createElement('li');
-                                          li.textContent = dir + file[0];
-                                          const isDir = file[1] === "true";
-                                          if (!isDir) {
-                                              li.onclick = () => downloadFile(dir, file[0]);
-                                          }
-                                          if (isDir) {
-                                              li.onclick = () => redir(file[0], dir);
-                                          }
-                                          ul.appendChild(li);
-                                      }
-                                  }
-
-                                  function redir(newDir, oldDir) {
-                                      const u = new URL(location.href);
-                                      u.searchParams.set("dir", oldDir+newDir+'/');
-                                      location.href = u.toString();
-                                  }
-
-                                  function bckdir(dir) {
-                                      const newDir = dir.replace(/[^/]+\\/?$/, "");
-                                      const u = new URL(location.href);
-                                      u.searchParams.set("dir", newDir);
-                                      location.href = u.toString();
-                                  }
-                    
-                                  function downloadFile(dir, file) {
-                                      const path = encodeURIComponent((dir ? dir + '/' : '') + file);
-                                      const url = '/file/' + path;
-                                      Object.assign(document.createElement("a"),{href:url,download:""}).click();
-                                  }
-                                  
-                                  loadFiles();
-                                  </script>
-                                  </body>
-                                  </html>""";
-                byte[] data = htmlData.getBytes();
-                exchange.getResponseHeaders().add("Content-Type", "text/html; charset=utf-8");
-                exchange.sendResponseHeaders(200, data.length);
-                try (OutputStream os = exchange.getResponseBody()) {
-                    os.write(data);
-                }
-            }
-        });
-        server.createContext("/file", new HttpHandler() {
-            @Override
-            public void handle(HttpExchange exchange) throws IOException {
-                System.out.println("/file");
-                String path = exchange.getRequestURI().getPath().substring("/file".length());
-                if (path.isEmpty() || path.equals("/")) {
-                    Path root = Path.of("public");
-                    var arr = Files.list(root)
-                        .map(p -> "[\"" + p.getFileName().toString().replace("\\", "/") +
-                        "\",\"" + Files.isDirectory(p) + "\"]")
-                        .toArray(String[]::new);
-                    String json = "[" + String.join(",", arr) + "]";
-                    byte[] data = json.getBytes();
-                    exchange.getResponseHeaders().add("Content-Type", "application/json");
-                    exchange.sendResponseHeaders(200, data.length);
-                    try (OutputStream os = exchange.getResponseBody()) {
-                        os.write(data);
-                    }
+                if ("/".equals(exchange.getRequestURI().getPath())) {
+                    exchange.getResponseHeaders().add("Location", "/index.html");
+                    exchange.sendResponseHeaders(301, -1);
                     return;
                 }
-                Path file = Path.of("public", path.substring("/".length()));
+                String path = exchange.getRequestURI().getPath().substring("/".length());
+                System.out.println("Visit logged at " + path);
+                Path file = Path.of("public", path);
                 
                 if (!Files.exists(file)) {
                     exchange.sendResponseHeaders(404, -1);
@@ -258,7 +161,7 @@ public class Lanshare implements AutoCloseable {
                 switch (exchange.getRequestMethod()) {
                     case "GET" -> {
                         if (Files.isDirectory(file)) {
-                            var arr = Files.list(file)
+                            /*var arr = Files.list(file)
                                .map(p -> "[\"" + p.getFileName().toString().replace("\\", "/") +
                                 "\",\"" + Files.isDirectory(p) + "\"]")
                                 .toArray(String[]::new);
@@ -268,18 +171,20 @@ public class Lanshare implements AutoCloseable {
                             exchange.sendResponseHeaders(200, data.length);
                             try (OutputStream os = exchange.getResponseBody()) {
                                 os.write(data);
-                            }
+                            }*/
+                            exchange.sendResponseHeaders(422, -1);
                         } else {
-                            exchange.getResponseHeaders().add("Content-Type", "application/octet-stream");
-                            try (OutputStream os = exchange.getResponseBody(); InputStream is = Files.newInputStream(Path.of("public", exchange.getRequestURI().getPath().substring("/file/".length())))) {
-                                exchange.sendResponseHeaders(200, 0);
+                            String type = URLConnection.getFileNameMap().getContentTypeFor(file.toString());
+                            exchange.getResponseHeaders().add("Content-Type", type==null?"application/octet-stream":type);
+                            exchange.sendResponseHeaders(200, Files.size(Path.of("public", path)));
+                            try (OutputStream os = exchange.getResponseBody(); InputStream is = Files.newInputStream(Path.of("public", path))) {
                                 byte[] buf = new byte[8192];
                                 int n;
                                 while ((n = is.read(buf)) != -1) {
                                     os.write(buf, 0, n);
                                 }
                             } catch (Exception ex) {
-                                exchange.sendResponseHeaders(409, -1);
+                                ex.printStackTrace();
                             }
                         }
                         break;
@@ -309,12 +214,6 @@ public class Lanshare implements AutoCloseable {
     private static boolean extractArgsBool(String[] args, String option, boolean def) {
         int i = Arrays.binarySearch(args, option);
         return (Arrays.asList(args).contains(option) && args.length > i) ? Boolean.parseBoolean(args[i+1]) : def;
-    }
-    
-    private Lanshare(int port, int backlog) throws IOException {
-        inst = this;
-        server = HttpServer.create(new InetSocketAddress(port), backlog);
-        server.start();
     }
     
     private Lanshare() throws IOException {

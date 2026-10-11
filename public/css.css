@@ -1,0 +1,15 @@
+/*
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/ClientSide/css.css to edit this template
+*/
+/* 
+    Created on : Sep 16, 2024, 8:11:48 PM
+    Author     : Admin
+*/
+body {
+    background-image: url("/bg.png");
+}
+
+li {
+    background-image: none;
+}
